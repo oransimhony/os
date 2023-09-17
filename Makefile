@@ -2,10 +2,11 @@ CFLAGS = -Wall -Wextra -Wpedantic -std=c99
 BUILD_DIR = build
 TARGET = $(BUILD_DIR)/sv
 
-ifdef $(DEBUG)
-	CFLAGS += -ggdb -O0
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	CFLAGS += -DDEBUG -ggdb -O0
 else
-	CFLAGS += -O2
+	CFLAGS += -DNDEBUG -O2
 endif
 
 
