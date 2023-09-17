@@ -1,3 +1,4 @@
+#define SV_IMPLEMENTATION
 #include "sv.h"
 #include <assert.h>
 #include <stdio.h>

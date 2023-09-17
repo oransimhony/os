@@ -14,9 +14,9 @@ all: test
 
 .PHONY: test
 test: $(TARGET)
-$(TARGET): sv.c test.c
+$(TARGET): test.c sv.h
 	mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $< -o $@
 	$@
 
 .PHONY: clean
