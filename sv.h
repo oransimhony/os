@@ -1,8 +1,16 @@
-#ifndef SV_H
-#define SV_H
+#ifndef SV_INCLUDE_SV_H
+#define SV_INCLUDE_SV_H
 
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifndef SVDEF
+#ifdef SV_STATIC
+#define SVDEF static
+#else
+#define SVDEF extern
+#endif
+#endif
 
 typedef struct
 {
@@ -13,29 +21,29 @@ typedef struct
 #define SV_FMT     "%.*s"
 #define SV_ARG(sv) (int) sv.length, sv.data
 
-string_view_t sv_new(char *data, size_t length);
-string_view_t sv_from_cstr(char *str);
+SVDEF string_view_t sv_new(char *data, size_t length);
+SVDEF string_view_t sv_from_cstr(char *str);
 
-string_view_t sv_trim_left(string_view_t sv);
-string_view_t sv_trim_right(string_view_t sv);
-string_view_t sv_trim(string_view_t sv);
+SVDEF string_view_t sv_trim_left(string_view_t sv);
+SVDEF string_view_t sv_trim_right(string_view_t sv);
+SVDEF string_view_t sv_trim(string_view_t sv);
 
-string_view_t sv_chop_by_delimeter(string_view_t *sv, char delimiter);
+SVDEF string_view_t sv_chop_by_delimeter(string_view_t *sv, char delimiter);
 
-bool sv_equal(string_view_t sv, string_view_t other);
-bool sv_equal_cstr(string_view_t sv, char *str);
-bool sv_starts_with(string_view_t sv, string_view_t other);
-bool sv_starts_with_cstr(string_view_t sv, char *str);
-bool sv_ends_with(string_view_t sv, string_view_t other);
-bool sv_ends_with_cstr(string_view_t sv, char *str);
+SVDEF bool sv_equal(string_view_t sv, string_view_t other);
+SVDEF bool sv_equal_cstr(string_view_t sv, char *str);
+SVDEF bool sv_starts_with(string_view_t sv, string_view_t other);
+SVDEF bool sv_starts_with_cstr(string_view_t sv, char *str);
+SVDEF bool sv_ends_with(string_view_t sv, string_view_t other);
+SVDEF bool sv_ends_with_cstr(string_view_t sv, char *str);
 
 typedef bool (*sv_predicate)(char character);
-bool sv_all(string_view_t sv, sv_predicate predicate);
-bool sv_any(string_view_t sv, sv_predicate predicate);
-bool sv_is_empty(string_view_t sv);
-bool sv_is_alpha(string_view_t sv);
-bool sv_is_alnum(string_view_t sv);
-bool sv_is_digit(string_view_t sv);
+SVDEF bool sv_all(string_view_t sv, sv_predicate predicate);
+SVDEF bool sv_any(string_view_t sv, sv_predicate predicate);
+SVDEF bool sv_is_empty(string_view_t sv);
+SVDEF bool sv_is_alpha(string_view_t sv);
+SVDEF bool sv_is_alnum(string_view_t sv);
+SVDEF bool sv_is_digit(string_view_t sv);
 
 #endif
 
@@ -43,17 +51,17 @@ bool sv_is_digit(string_view_t sv);
 #include <ctype.h>
 #include <string.h>
 
-string_view_t sv_new(char *data, size_t length)
+SVDEF string_view_t sv_new(char *data, size_t length)
 {
     return (string_view_t) {.data = data, .length = length};
 }
 
-string_view_t sv_from_cstr(char *str)
+SVDEF string_view_t sv_from_cstr(char *str)
 {
     return (string_view_t) {.data = str, .length = strlen(str)};
 }
 
-string_view_t sv_trim_left(string_view_t sv)
+SVDEF string_view_t sv_trim_left(string_view_t sv)
 {
     while (sv.length && isspace(*sv.data))
     {
@@ -64,7 +72,7 @@ string_view_t sv_trim_left(string_view_t sv)
     return sv;
 }
 
-string_view_t sv_trim_right(string_view_t sv)
+SVDEF string_view_t sv_trim_right(string_view_t sv)
 {
     while (sv.length && isspace(sv.data[sv.length - 1]))
     {
@@ -74,12 +82,12 @@ string_view_t sv_trim_right(string_view_t sv)
     return sv;
 }
 
-string_view_t sv_trim(string_view_t sv)
+SVDEF string_view_t sv_trim(string_view_t sv)
 {
     return sv_trim_right(sv_trim_left(sv));
 }
 
-string_view_t sv_chop_by_delimeter(string_view_t *sv, char delimiter)
+SVDEF string_view_t sv_chop_by_delimeter(string_view_t *sv, char delimiter)
 {
     string_view_t out = *sv;
 
@@ -100,7 +108,7 @@ string_view_t sv_chop_by_delimeter(string_view_t *sv, char delimiter)
     return out;
 }
 
-bool sv_equal(string_view_t sv, string_view_t other)
+SVDEF bool sv_equal(string_view_t sv, string_view_t other)
 {
     if (sv.length != other.length)
     {
@@ -110,12 +118,12 @@ bool sv_equal(string_view_t sv, string_view_t other)
     return 0 == strncmp(sv.data, other.data, sv.length);
 }
 
-bool sv_equal_cstr(string_view_t sv, char *str)
+SVDEF bool sv_equal_cstr(string_view_t sv, char *str)
 {
     return sv_equal(sv, sv_from_cstr(str));
 }
 
-bool sv_starts_with(string_view_t sv, string_view_t other)
+SVDEF bool sv_starts_with(string_view_t sv, string_view_t other)
 {
     if (other.length > sv.length)
         return false;
@@ -133,12 +141,12 @@ bool sv_starts_with(string_view_t sv, string_view_t other)
     return true;
 }
 
-bool sv_starts_with_cstr(string_view_t sv, char *str)
+SVDEF bool sv_starts_with_cstr(string_view_t sv, char *str)
 {
     return sv_starts_with(sv, sv_from_cstr(str));
 }
 
-bool sv_ends_with(string_view_t sv, string_view_t other)
+SVDEF bool sv_ends_with(string_view_t sv, string_view_t other)
 {
     if (other.length > sv.length)
         return false;
@@ -154,17 +162,17 @@ bool sv_ends_with(string_view_t sv, string_view_t other)
     return true;
 }
 
-bool sv_ends_with_cstr(string_view_t sv, char *str)
+SVDEF bool sv_ends_with_cstr(string_view_t sv, char *str)
 {
     return sv_ends_with(sv, sv_from_cstr(str));
 }
 
-bool sv_is_empty(string_view_t sv)
+SVDEF bool sv_is_empty(string_view_t sv)
 {
     return sv.length == 0;
 }
 
-_Bool sv_all(string_view_t sv, sv_predicate predicate)
+SVDEF _Bool sv_all(string_view_t sv, sv_predicate predicate)
 {
     for (size_t i = 0; i < sv.length; ++i)
     {
@@ -177,7 +185,7 @@ _Bool sv_all(string_view_t sv, sv_predicate predicate)
     return true;
 }
 
-bool sv_any(string_view_t sv, sv_predicate predicate)
+SVDEF bool sv_any(string_view_t sv, sv_predicate predicate)
 {
     for (size_t i = 0; i < sv.length; ++i)
     {
@@ -201,7 +209,7 @@ _retype_predicate(is_alnum, isalnum)
 _retype_predicate(is_digit, isdigit)
 
 #define _sv_predicate(sv_funcname, predicate_funcname)                         \
-    bool sv_funcname(string_view_t sv)                                         \
+    SVDEF bool sv_funcname(string_view_t sv)                                   \
     {                                                                          \
         return sv_all(sv, (sv_predicate) predicate_funcname);                  \
     }
