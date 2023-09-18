@@ -32,7 +32,8 @@ typedef struct
 OSSBDEF os_string_builder_t sb_new(void);
 OSSBDEF os_string_builder_t sb_from_cstr(char *str);
 OSSBDEF os_string_builder_t sb_append_cstr(os_string_builder_t sb, char *str);
-OSSBDEF os_string_builder_t sb_append_format(os_string_builder_t sb, char *format, ...);
+OSSBDEF os_string_builder_t sb_append_format(os_string_builder_t sb,
+                                             char *format, ...);
 OSSBDEF os_string_builder_t sb_end(os_string_builder_t sb);
 OSSBDEF os_string_builder_t sb_reset(os_string_builder_t sb);
 OSSBDEF char *sb_as_cstr(os_string_builder_t sb);
@@ -74,8 +75,8 @@ OSSBDEF os_string_builder_t sb_append_cstr(os_string_builder_t sb, char *str)
     size_t length = strlen(str);
     if (sb.length + length >= sb.capacity)
     {
-        size_t new_capacity
-            = sb.capacity == 0 ? OSSB_INITIAL_CAPACITY : sb.capacity * OSSB_FACTOR;
+        size_t new_capacity = sb.capacity == 0 ? OSSB_INITIAL_CAPACITY
+                                               : sb.capacity * OSSB_FACTOR;
         while (sb.length + length >= new_capacity)
         {
             new_capacity *= OSSB_FACTOR;
@@ -97,8 +98,8 @@ OSSBDEF os_string_builder_t sb_end(os_string_builder_t sb)
 {
     if (sb.length + 1 >= sb.capacity)
     {
-        size_t new_capacity
-            = sb.capacity == 0 ? OSSB_INITIAL_CAPACITY : sb.capacity * OSSB_FACTOR;
+        size_t new_capacity = sb.capacity == 0 ? OSSB_INITIAL_CAPACITY
+                                               : sb.capacity * OSSB_FACTOR;
         while (sb.length + 1 >= new_capacity)
         {
             new_capacity *= OSSB_FACTOR;
@@ -130,7 +131,7 @@ OSSBDEF os_string_builder_t sb_free(os_string_builder_t sb)
 {
     if (sb.buffer)
     {
-        (void) free(sb.buffer);
+        sb__realloc(sb.buffer, 0);
         sb.buffer = NULL;
     }
 
