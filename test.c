@@ -34,30 +34,37 @@ int check_da(const char *stage)
 {
     CHECK_START(stage);
 
-    os_dynamic_array_t numbers = os_da_new();
+    typedef struct
+    {
+        int *items;
+        size_t count;
+        size_t capacity;
+    } os_numbers_t;
+
+    os_numbers_t numbers = {0};
     assert(numbers.capacity == 0);
     assert(numbers.count == 0);
 
     /* Appending works */
-    os_da_append(int, numbers, 1);
+    os_da_append(numbers, 1);
     assert(numbers.count == 1);
-    assert(os_da_get(int, numbers, 0) == 1);
-    os_da_append(int, numbers, 2);
+    assert(numbers.items[0] == 1);
+    os_da_append(numbers, 2);
     assert(numbers.count == 2);
-    assert(os_da_get(int, numbers, 1) == 2);
-    os_da_append(int, numbers, 3);
+    assert(numbers.items[1] == 2);
+    os_da_append(numbers, 3);
     assert(numbers.count == 3);
-    assert(os_da_get(int, numbers, 2) == 3);
+    assert(numbers.items[2] == 3);
 
     /* Pop from the end */
-    numbers = os_da_pop_tail(numbers);
+    os_da_pop_tail(numbers);
     assert(numbers.count == 2);
-    assert(os_da_get(int, numbers, 0) == 1);
+    assert(numbers.items[0] == 1);
 
     /* Pop from the start */
     os_da_pop_head(int, numbers);
     assert(numbers.count == 1);
-    assert(os_da_get(int, numbers, 0) == 2);
+    assert(numbers.items[0] == 2);
 
     os_da_pop_head(int, numbers);
     assert(numbers.count == 0);
@@ -66,7 +73,11 @@ int check_da(const char *stage)
     os_da_pop_head(int, numbers);
     assert(numbers.count == 0);
 
-    numbers = os_da_free(numbers);
+    os_da_free(numbers);
+
+    CHECK_END(stage);
+    return 1;
+}
 
     CHECK_END(stage);
     return 1;
