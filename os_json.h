@@ -259,10 +259,12 @@ OSJDEF os_json_object_t *osj_parse(const char *str)
         goto end;
 
     osj__parse_entity(obj, &sv);
-    ossv_chop_by_delimeter(&sv, ',');
-    osj__parse_entity(obj, &sv);
-    ossv_chop_by_delimeter(&sv, ',');
-    osj__parse_entity(obj, &sv);
+    sv = ossv_trim_left(sv);
+    while (*sv.data == ',')
+    {
+        ossv_chop_by_delimeter(&sv, ',');
+        osj__parse_entity(obj, &sv);
+    }
 
     /* Make sure the string is exhausted */
     os_string_view_t end = ossv_chop_by_delimeter(&sv, '}');
