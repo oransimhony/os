@@ -41,13 +41,13 @@ typedef struct
 #define os_da_free(da)                                                         \
     do                                                                         \
     {                                                                          \
-        if ((da).items)                                                        \
+        if ((da)->items)                                                        \
         {                                                                      \
-            da__free((da).items);                                              \
-            (da).items = NULL;                                                 \
+            da__free((da)->items);                                              \
+            (da)->items = NULL;                                                 \
         }                                                                      \
-        (da).count = 0;                                                        \
-        (da).capacity = 0;                                                     \
+        (da)->count = 0;                                                        \
+        (da)->capacity = 0;                                                     \
     } while (0)
 
 static void *da__realloc(void *ptr, size_t size);
@@ -56,40 +56,40 @@ static void da__free(void *ptr);
 #define os_da_append(da, item)                                                 \
     do                                                                         \
     {                                                                          \
-        if ((da).count >= (da).capacity)                                       \
+        if ((da)->count >= (da)->capacity)                                     \
         {                                                                      \
-            size_t new_capacity = (da).capacity == 0                           \
+            size_t new_capacity = (da)->capacity == 0                          \
                                     ? OSDA_INITIAL_CAPACITY                    \
-                                    : (da).capacity * OSDA_FACTOR;             \
-            while ((da).count >= new_capacity)                                 \
+                                    : (da)->capacity * OSDA_FACTOR;            \
+            while ((da)->count >= new_capacity)                                \
             {                                                                  \
-                (da).capacity *= OSDA_FACTOR;                                  \
+                (da)->capacity *= OSDA_FACTOR;                                 \
             }                                                                  \
-            (da).items                                                         \
-                = da__realloc((da).items, new_capacity * sizeof(*(da).items)); \
-            (da).capacity = new_capacity;                                      \
+            (da)->items = da__realloc((da)->items,                             \
+                                      new_capacity * sizeof(*(da)->items));    \
+            (da)->capacity = new_capacity;                                     \
         }                                                                      \
-        (da).items[(da).count++] = item;                                       \
+        (da)->items[(da)->count++] = item;                                     \
     } while (0)
 
 #define os_da_pop_tail(da)                                                     \
     do                                                                         \
     {                                                                          \
-        if ((da).count > 0)                                                    \
-            --(da).count;                                                      \
+        if ((da)->count > 0)                                                    \
+            --(da)->count;                                                      \
     } while (0)
 
 #define os_da_pop_head(type, da)                                               \
     do                                                                         \
     {                                                                          \
-        if ((da).count <= 1)                                                   \
+        if ((da)->count <= 1)                                                   \
         {                                                                      \
             os_da_pop_tail((da));                                              \
         }                                                                      \
         else                                                                   \
         {                                                                      \
-            memmove((da).items, (type *) (da).items + 1, sizeof(type));        \
-            --(da).count;                                                      \
+            memmove((da)->items, (type *) (da)->items + 1, sizeof(type));        \
+            --(da)->count;                                                      \
         }                                                                      \
     } while (0)
 

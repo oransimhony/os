@@ -230,7 +230,7 @@ static void osj__parse_entity(os_json_object_t *obj, os_string_view_t *sv)
     os_string_view_t field = ossv_chop_by_delimeter(sv, '"');
     osl_logf(OSL_DEBUG, "field name: " OSSV_FMT, OSSV_ARG(field));
 
-    os_da_append(obj->keys, osj__sv_as_cstr(field));
+    os_da_append(&obj->keys, osj__sv_as_cstr(field));
 
     ossv_chop_by_delimeter(sv, ':');
     *sv = ossv_trim_left(*sv);
@@ -254,7 +254,7 @@ static void osj__parse_entity(os_json_object_t *obj, os_string_view_t *sv)
             break;
     }
 
-    os_da_append(obj->values, value);
+    os_da_append(&obj->values, value);
 
     osl_logf(OSL_DEBUG, "remaining: " OSSV_FMT, OSSV_PARG(sv));
 }
@@ -321,7 +321,7 @@ OSJDEF void osj_free(os_json_object_t *obj)
     {
         osj__free(obj->keys.items[i]);
     }
-    os_da_free(obj->keys);
+    os_da_free(&obj->keys);
 
     for (size_t i = 0; i < obj->values.count; ++i)
     {
@@ -335,7 +335,7 @@ OSJDEF void osj_free(os_json_object_t *obj)
         }
         osj__free(obj->values.items[i]);
     }
-    os_da_free(obj->values);
+    os_da_free(&obj->values);
 
     osj__free(obj);
 }

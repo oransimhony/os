@@ -50,34 +50,34 @@ int check_da(const char *stage)
     assert(numbers.count == 0);
 
     /* Appending works */
-    os_da_append(numbers, 1);
+    os_da_append(&numbers, 1);
     assert(numbers.count == 1);
     assert(numbers.items[0] == 1);
-    os_da_append(numbers, 2);
+    os_da_append(&numbers, 2);
     assert(numbers.count == 2);
     assert(numbers.items[1] == 2);
-    os_da_append(numbers, 3);
+    os_da_append(&numbers, 3);
     assert(numbers.count == 3);
     assert(numbers.items[2] == 3);
 
     /* Pop from the end */
-    os_da_pop_tail(numbers);
+    os_da_pop_tail(&numbers);
     assert(numbers.count == 2);
     assert(numbers.items[0] == 1);
 
     /* Pop from the start */
-    os_da_pop_head(int, numbers);
+    os_da_pop_head(int, &numbers);
     assert(numbers.count == 1);
     assert(numbers.items[0] == 2);
 
-    os_da_pop_head(int, numbers);
+    os_da_pop_head(int, &numbers);
     assert(numbers.count == 0);
 
     /* Can pop empty DAs */
-    os_da_pop_head(int, numbers);
+    os_da_pop_head(int, &numbers);
     assert(numbers.count == 0);
 
-    os_da_free(numbers);
+    os_da_free(&numbers);
 
     CHECK_END(stage);
     return 1;
