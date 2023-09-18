@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define OS_DA_IMPLEMENTATION
+#include "os_da.h"
 #define OS_LOG_IMPLEMENTATION
 #include "os_log.h"
 #define OS_SB_IMPLEMENTATION
@@ -26,6 +28,49 @@
             return EXIT_FAILURE;                                               \
         }                                                                      \
     } while (0)
+
+/* DA tests */
+int check_da(const char *stage)
+{
+    CHECK_START(stage);
+
+    os_dynamic_array_t numbers = os_da_new();
+    assert(numbers.capacity == 0);
+    assert(numbers.count == 0);
+
+    /* Appending works */
+    os_da_append(int, numbers, 1);
+    assert(numbers.count == 1);
+    assert(os_da_get(int, numbers, 0) == 1);
+    os_da_append(int, numbers, 2);
+    assert(numbers.count == 2);
+    assert(os_da_get(int, numbers, 1) == 2);
+    os_da_append(int, numbers, 3);
+    assert(numbers.count == 3);
+    assert(os_da_get(int, numbers, 2) == 3);
+
+    /* Pop from the end */
+    numbers = os_da_pop_tail(numbers);
+    assert(numbers.count == 2);
+    assert(os_da_get(int, numbers, 0) == 1);
+
+    /* Pop from the start */
+    os_da_pop_head(int, numbers);
+    assert(numbers.count == 1);
+    assert(os_da_get(int, numbers, 0) == 2);
+
+    os_da_pop_head(int, numbers);
+    assert(numbers.count == 0);
+
+    /* Can pop empty DAs */
+    os_da_pop_head(int, numbers);
+    assert(numbers.count == 0);
+
+    numbers = os_da_free(numbers);
+
+    CHECK_END(stage);
+    return 1;
+}
 
 /* Log tests */
 int check_log(const char *stage)
@@ -124,6 +169,7 @@ int check_sv(const char *stage)
 
 int main(void)
 {
+    TEST_STAGE(check_da, DA);
     TEST_STAGE(check_log, Log);
     TEST_STAGE(check_sb, SB);
     TEST_STAGE(check_sv, SV);
