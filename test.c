@@ -2,10 +2,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define OS_LOG_IMPLEMENTATION
+#include "os_log.h"
 #define OS_SB_IMPLEMENTATION
 #include "os_sb.h"
 #define OS_SV_IMPLEMENTATION
 #include "os_sv.h"
+
+/* Log tests */
+int check_log(void)
+{
+    printf("------------Checking Log-----------\n");
+    osl_log(OSL_DEBUG, "debug log");
+    osl_log(OSL_INFO, "info log");
+    osl_log(OSL_WARNING, "warning log");
+    osl_log(OSL_ERROR, "error log");
+    osl_logf(OSL_WARNING, "sizeof(size_t) = %zu", sizeof(size_t));
+    printf("------------Done checking Log-----------\n");
+    return 1;
+}
 
 /* SB tests */
 int check_sb(void)
@@ -91,6 +106,12 @@ int check_sv(void)
 
 int main(void)
 {
+    if (!check_log())
+    {
+        (void) fprintf(stderr, "Log implementation failed");
+        return EXIT_FAILURE;
+    }
+
     if (!check_sb())
     {
         (void) fprintf(stderr, "SB implementation failed");
