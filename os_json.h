@@ -252,10 +252,17 @@ OSJDEF os_json_object_t *osj_parse(const char *str)
     osl_logf(OSL_DEBUG, "String to parse: %s", str);
     os_string_view_t sv = ossv_from_cstr(str);
 
+    ossv_trim(sv);
+
     if (!sv.length)
         goto end;
 
     if (sv.data[0] != '{')
+        goto end;
+
+    ++sv.data;
+    --sv.length;
+    if (!sv.length || sv.data[0] == '}')
         goto end;
 
     osj__parse_entity(obj, &sv);
