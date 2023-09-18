@@ -106,7 +106,7 @@ SpacesInSquareBrackets: false
 Standard:        Latest
 StatementMacros:
   - _retype_predicate
-  - _sv_predicate
+  - _ossv_predicate
 TabWidth:        4
 UseCRLF:         false
 UseTab:          Never

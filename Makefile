@@ -1,6 +1,6 @@
 CFLAGS = -Wall -Wextra -Wpedantic -std=c99
 BUILD_DIR = build
-TARGET = $(BUILD_DIR)/sv
+TARGET = $(BUILD_DIR)/os
 
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
@@ -15,7 +15,7 @@ all: test
 
 .PHONY: test
 test: $(TARGET)
-$(TARGET): test.c sv.h
+$(TARGET): test.c os_sv.h
 	mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) $< -o $@
 	$@
