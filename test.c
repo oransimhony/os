@@ -88,7 +88,8 @@ int check_json(const char *stage)
 {
     CHECK_START(stage);
 
-    os_json_object_t *obj = osj_parse("{\"hello\": \"world\",\"number\": 1, \"isWorking\": true}");
+    os_json_object_t *obj = osj_parse(
+        "{\"hello\": \"world\",\"number\": 1, \"isWorking\": true}");
     assert(obj->keys.count == 3);
     assert(obj->values.count == 3);
 
@@ -126,7 +127,10 @@ int check_json(const char *stage)
     assert(1 == obj->values.items[0]->value.object->keys.count);
     assert(1 == obj->values.items[0]->value.object->values.count);
     assert(0 == strcmp("b", obj->values.items[0]->value.object->keys.items[0]));
-    assert(0 == strcmp("c", obj->values.items[0]->value.object->values.items[0]->value.str));
+    assert(0
+           == strcmp(
+               "c",
+               obj->values.items[0]->value.object->values.items[0]->value.str));
 
     osj_free(obj);
 
@@ -139,6 +143,52 @@ int check_json(const char *stage)
     assert(1.0L == obj->values.items[0]->value.array->items[0]->value.number);
     assert(2.0L == obj->values.items[0]->value.array->items[1]->value.number);
     assert(3.0L == obj->values.items[0]->value.array->items[2]->value.number);
+
+    osj_free(obj);
+
+    obj = osj_parse("{\"a\": [{\"hello\": \"world\"}, {\"number\": 1}], \"b\": false}");
+    assert(obj->keys.count == 2);
+    assert(obj->values.count == 2);
+
+    assert(0 == strcmp("a", obj->keys.items[0]));
+    assert(2 == obj->values.items[0]->value.array->count);
+    assert(1
+           == obj->values.items[0]
+                  ->value.array->items[0]
+                  ->value.object->keys.count);
+    assert(1
+           == obj->values.items[0]
+                  ->value.array->items[0]
+                  ->value.object->values.count);
+    assert(0
+           == strcmp("hello", obj->values.items[0]
+                                  ->value.array->items[0]
+                                  ->value.object->keys.items[0]));
+    assert(0
+           == strcmp("world", obj->values.items[0]
+                                  ->value.array->items[0]
+                                  ->value.object->values.items[0]
+                                  ->value.str));
+    assert(1
+           == obj->values.items[0]
+                  ->value.array->items[1]
+                  ->value.object->keys.count);
+    assert(1
+           == obj->values.items[0]
+                  ->value.array->items[1]
+                  ->value.object->values.count);
+    assert(0
+           == strcmp("number", obj->values.items[0]
+                                    ->value.array->items[1]
+                                    ->value.object->keys.items[0]));
+    assert(1.0L
+           == obj->values.items[0]
+                  ->value.array->items[1]
+                  ->value.object->values.items[0]
+                  ->value.number);
+
+    assert(0 == strcmp("b", obj->keys.items[1]));
+    assert(false == obj->values.items[1]->value.boolean);
 
     osj_free(obj);
 
