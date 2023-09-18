@@ -43,7 +43,12 @@ OSSBDEF os_string_builder_t sb_free(os_string_builder_t sb);
 #define OSSB_REALLOC realloc
 #endif
 
+#ifndef OSSB_FREE
+#define OSSB_FREE free
+#endif
+
 static void *sb__realloc(void *ptr, size_t size);
+static void sb__free(void *ptr);
 
 #endif
 
@@ -52,6 +57,11 @@ static void *sb__realloc(void *ptr, size_t size);
 static void *sb__realloc(void *ptr, size_t size)
 {
     return OSSB_REALLOC(ptr, size);
+}
+
+static void sb__free(void *ptr)
+{
+    OSSB_FREE(ptr);
 }
 
 OSSBDEF os_string_builder_t sb_new(void)
@@ -131,7 +141,7 @@ OSSBDEF os_string_builder_t sb_free(os_string_builder_t sb)
 {
     if (sb.buffer)
     {
-        sb__realloc(sb.buffer, 0);
+        sb__free(sb.buffer);
         sb.buffer = NULL;
     }
 
