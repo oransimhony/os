@@ -1,11 +1,56 @@
-#include <stdlib.h>
-#define OS_SV_IMPLEMENTATION
-#include "os_sv.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#define OS_SB_IMPLEMENTATION
+#include "os_sb.h"
+#define OS_SV_IMPLEMENTATION
+#include "os_sv.h"
+
+/* SB tests */
+int check_sb(void)
+{
+    printf("------------Checking SB-----------\n");
+    os_string_builder_t sb = sb_new();
+    assert(sb.capacity == 0);
+    sb = sb_append_cstr(sb, "hello");
+    assert(sb.length == strlen("hello"));
+    assert(sb.capacity != 0);
+    sb = sb_append_cstr(sb, " ");
+    assert(sb.length == strlen("hello "));
+    sb = sb_append_cstr(sb, "world!!");
+    assert(sb.length == strlen("hello world!!"));
+    sb = sb_end(sb);
+    assert(sb.length == strlen("hello world!!") + 1);
+    printf("buffer(%zu): %s\n", sb.capacity, sb_as_cstr(sb));
+
+    sb = sb_reset(sb);
+    assert(sb.capacity != 0);
+
+    sb = sb_append_cstr(sb, "hello again...");
+    assert(sb.length == strlen("hello again..."));
+    sb = sb_end(sb);
+    assert(sb.length == strlen("hello again...") + 1);
+    printf("buffer(%zu): %s\n", sb.capacity, sb_as_cstr(sb));
+    sb = sb_free(sb);
+    assert(sb.capacity == 0);
+
+    sb = sb_from_cstr("hello for the last time");
+    assert(sb.capacity != 0);
+    assert(sb.length == strlen("hello for the last time"));
+    sb = sb_end(sb);
+    printf("buffer(%zu): %s\n", sb.capacity, sb_as_cstr(sb));
+    sb = sb_free(sb);
+    assert(sb.capacity == 0);
+    printf("------------Done checking SB-----------\n");
+
+    return 1;
+}
+
+/* SV tests */
 int check_sv(void)
 {
+    printf("------------Checking SV-----------\n");
     /* Trimming */
     os_string_view_t sv = ossv_from_cstr("      hello world from me   ");
     printf("before: " OSSV_FMT "\n", OSSV_ARG(sv));
@@ -39,16 +84,23 @@ int check_sv(void)
     printf("word: " OSSV_FMT "\n", OSSV_ARG(word));
     assert(ossv_is_alpha(word));
     assert(ossv_is_digit(sv));
+    printf("------------Done checking SV-----------\n");
 
     return 1;
 }
 
 int main(void)
 {
+    if (!check_sb())
+    {
+        (void) fprintf(stderr, "SB implementation failed");
+        return EXIT_FAILURE;
+    }
+
     if (!check_sv())
     {
-      (void)fprintf(stderr, "SV implementation failed");
-      return EXIT_FAILURE;
+        (void) fprintf(stderr, "SV implementation failed");
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

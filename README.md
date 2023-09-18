@@ -12,5 +12,7 @@ And now you're good to go! ✨
 In `test.c` you can see some code that uses functions from the different header files. Use it to learn how to use this implementation. 🚀
 
 ## Headers
+### SB (String Builder)
+ A simple C String Builder library
 ### SV (String View)
  A simple C String View library
