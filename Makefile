@@ -4,7 +4,7 @@ TARGET = $(BUILD_DIR)/os
 
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-	CFLAGS += -DDEBUG -ggdb -O0
+	CFLAGS += -DDEBUG -ggdb -O0 -DOSJ_LOGGING
 else
 	CFLAGS += -DNDEBUG -O2
 endif

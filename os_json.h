@@ -84,9 +84,14 @@ static void osj__free(void *ptr);
 
 #include <string.h>
 
+#ifdef OSJ_LOGGING
 #ifndef OS_LOG_IMPLEMENTATION
 #define OS_LOG_IMPLEMENTATION
 #include "os_log.h"
+#endif
+#else
+#define osl_log(...)
+#define osl_logf(...)
 #endif
 
 #ifndef OS_DA_IMPLEMENTATION
@@ -127,7 +132,6 @@ static os_json_value_t *osj__parse_string(os_string_view_t *sv)
 {
     ossv_chop_by_delimeter(sv, '"');
     os_string_view_t str = ossv_chop_by_delimeter(sv, '"');
-    osl_logf(OSL_DEBUG, "stringy " OSSV_FMT, OSSV_ARG(str));
     os_json_value_t *val = (os_json_value_t *) osj__realloc(NULL, sizeof(*val));
     assert(val != NULL);
 
@@ -206,13 +210,12 @@ static void osj__parse_entity(os_json_object_t *obj, os_string_view_t *sv)
 {
     ossv_chop_by_delimeter(sv, '"');
     os_string_view_t field = ossv_chop_by_delimeter(sv, '"');
-    osl_logf(OSL_INFO, "field name: " OSSV_FMT, OSSV_ARG(field));
+    osl_logf(OSL_DEBUG, "field name: " OSSV_FMT, OSSV_ARG(field));
 
     os_da_append(obj->keys, osj__sv_as_cstr(field));
 
     ossv_chop_by_delimeter(sv, ':');
     *sv = ossv_trim_left(*sv);
-    osl_logf(OSL_INFO, "value: " OSSV_FMT, OSSV_PARG(sv));
     os_json_value_t *value = osj__parse_value(sv);
     osl_logf(OSL_DEBUG, "value type %s (%d)",
              osj_value_type_to_cstr[value->type], value->type);
@@ -246,7 +249,7 @@ OSJDEF os_json_object_t *osj_parse(const char *str)
     obj->keys = (os_json_keys_t) {0};
     obj->values = (os_json_values_t) {0};
 
-    osl_log(OSL_INFO, str);
+    osl_logf(OSL_DEBUG, "String to parse: %s", str);
     os_string_view_t sv = ossv_from_cstr(str);
 
     if (!sv.length)
