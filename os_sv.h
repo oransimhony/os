@@ -18,8 +18,9 @@ typedef struct
     size_t length;
 } os_string_view_t;
 
-#define OSSV_FMT     "%.*s"
-#define OSSV_ARG(sv) (int) sv.length, sv.data
+#define OSSV_FMT      "%.*s"
+#define OSSV_ARG(sv)  (int) (sv).length, (sv).data
+#define OSSV_PARG(sv) (int) (sv)->length, (sv)->data
 
 OSSVDEF os_string_view_t ossv_new(const char *data, size_t length);
 OSSVDEF os_string_view_t ossv_from_cstr(const char *str);
