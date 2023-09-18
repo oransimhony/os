@@ -411,6 +411,29 @@ OSJDEF void osj_print(os_json_object_t obj)
     printf("\n");
 }
 
+static void osj__free_value(os_json_value_t *value)
+{
+    if (value->type == osj_str)
+    {
+        osj__free(value->value.str);
+    }
+    else if (value->type == osj_object)
+    {
+        osj_free(value->value.object);
+    }
+    else if (value->type == osj_array)
+    {
+        for (size_t j = 0; j < value->value.array->count; ++j)
+        {
+            osj__free_value(value->value.array->items[j]);
+        }
+
+        os_da_free(value->value.array);
+        osj__free(value->value.array);
+    }
+    osj__free(value);
+}
+
 OSJDEF void osj_free(os_json_object_t *obj)
 {
     if (!obj)
@@ -424,26 +447,7 @@ OSJDEF void osj_free(os_json_object_t *obj)
 
     for (size_t i = 0; i < obj->values.count; ++i)
     {
-        if (obj->values.items[i]->type == osj_str)
-        {
-            osj__free(obj->values.items[i]->value.str);
-        }
-        else if (obj->values.items[i]->type == osj_object)
-        {
-            osj_free(obj->values.items[i]->value.object);
-        }
-        else if (obj->values.items[i]->type == osj_array)
-        {
-            for (size_t j = 0; j < obj->values.items[i]->value.array->count;
-                 ++j)
-            {
-                osj__free(obj->values.items[i]->value.array->items[j]);
-            }
-
-            os_da_free(obj->values.items[i]->value.array);
-            osj__free(obj->values.items[i]->value.array);
-        }
-        osj__free(obj->values.items[i]);
+        osj__free_value(obj->values.items[i]);
     }
     os_da_free(&obj->values);
 
