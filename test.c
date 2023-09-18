@@ -9,23 +9,41 @@
 #define OS_SV_IMPLEMENTATION
 #include "os_sv.h"
 
+#define CHECK_START(name) printf("------------Checking %s -----------\n", name)
+#define CHECK_END(name)                                                        \
+    printf("------------Done checking %s-----------\n", name)
+
+#define _stringify(x) #x
+#define stringify(x)  _stringify(x)
+#define TEST_STAGE(check_func, name)                                           \
+    do                                                                         \
+    {                                                                          \
+        if (!check_func(#name))                                                \
+        {                                                                      \
+            fprintf(stderr, __FILE__                                           \
+                    ":" stringify(__LINE__) ":ERROR:" #name                    \
+                                            " implementation failed\n");       \
+            return EXIT_FAILURE;                                               \
+        }                                                                      \
+    } while (0)
+
 /* Log tests */
-int check_log(void)
+int check_log(const char *stage)
 {
-    printf("------------Checking Log-----------\n");
+    CHECK_START(stage);
     osl_log(OSL_DEBUG, "debug log");
     osl_log(OSL_INFO, "info log");
     osl_log(OSL_WARNING, "warning log");
     osl_log(OSL_ERROR, "error log");
     osl_logf(OSL_WARNING, "sizeof(size_t) = %zu", sizeof(size_t));
-    printf("------------Done checking Log-----------\n");
+    CHECK_END(stage);
     return 1;
 }
 
 /* SB tests */
-int check_sb(void)
+int check_sb(const char *stage)
 {
-    printf("------------Checking SB-----------\n");
+    CHECK_START(stage);
     os_string_builder_t sb = sb_new();
     assert(sb.capacity == 0);
     sb = sb_append_cstr(sb, "hello");
@@ -57,15 +75,15 @@ int check_sb(void)
     printf("buffer(%zu): %s\n", sb.capacity, sb_as_cstr(sb));
     sb = sb_free(sb);
     assert(sb.capacity == 0);
-    printf("------------Done checking SB-----------\n");
+    CHECK_END(stage);
 
     return 1;
 }
 
 /* SV tests */
-int check_sv(void)
+int check_sv(const char *stage)
 {
-    printf("------------Checking SV-----------\n");
+    CHECK_START(stage);
     /* Trimming */
     os_string_view_t sv = ossv_from_cstr("      hello world from me   ");
     printf("before: " OSSV_FMT "\n", OSSV_ARG(sv));
@@ -99,30 +117,16 @@ int check_sv(void)
     printf("word: " OSSV_FMT "\n", OSSV_ARG(word));
     assert(ossv_is_alpha(word));
     assert(ossv_is_digit(sv));
-    printf("------------Done checking SV-----------\n");
+    CHECK_END(stage);
 
     return 1;
 }
 
 int main(void)
 {
-    if (!check_log())
-    {
-        (void) fprintf(stderr, "Log implementation failed");
-        return EXIT_FAILURE;
-    }
-
-    if (!check_sb())
-    {
-        (void) fprintf(stderr, "SB implementation failed");
-        return EXIT_FAILURE;
-    }
-
-    if (!check_sv())
-    {
-        (void) fprintf(stderr, "SV implementation failed");
-        return EXIT_FAILURE;
-    }
+    TEST_STAGE(check_log, Log);
+    TEST_STAGE(check_sb, SB);
+    TEST_STAGE(check_sv, SV);
 
     return EXIT_SUCCESS;
 }
