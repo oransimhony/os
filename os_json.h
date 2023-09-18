@@ -71,6 +71,7 @@ typedef struct os_json_object_s
 } os_json_object_t;
 
 OSJDEF os_json_object_t *osj_parse(const char *str);
+OSJDEF void osj_print(os_json_object_t obj);
 OSJDEF void osj_free(os_json_object_t *obj);
 
 #ifndef OSJ_REALLOC
@@ -88,6 +89,7 @@ static void osj__free(void *ptr);
 
 #ifdef OS_JSON_IMPLEMENTATION
 
+#include <stdio.h>
 #include <string.h>
 
 #ifdef OSJ_LOGGING
@@ -117,6 +119,7 @@ static void osj__free(void *ptr);
 
 static os_json_value_t *osj__parse_value(os_string_view_t *sv);
 static os_json_object_t *osj__parse_object(os_string_view_t *sv);
+static void osj__print_object(os_json_object_t obj);
 
 static void *osj__realloc(void *ptr, size_t size)
 {
@@ -351,6 +354,61 @@ OSJDEF os_json_object_t *osj_parse(const char *str)
     assert(ossv_equal(end, sv));
 
     return obj;
+}
+
+static void osj__print_value(os_json_value_t *value)
+{
+    switch (value->type)
+    {
+        case osj_str:
+            printf("\"%s\"", value->value.str);
+            break;
+        case osj_boolean:
+            printf("%s", value->value.boolean ? "true" : "false");
+            break;
+        case osj_number:
+            printf("%.10lf", value->value.number);
+            break;
+        case osj_object:
+            osj__print_object(*value->value.object);
+            break;
+        case osj_array:
+            printf("[");
+            for (size_t j = 0; j < value->value.array->count - 1; ++j)
+            {
+                osj__print_value(value->value.array->items[j]);
+                printf(", ");
+            }
+            osj__print_value(
+                value->value.array->items[value->value.array->count - 1]);
+            printf("]");
+            break;
+        case osj_value_type_count:
+            break;
+    }
+}
+
+static void osj__print_object(os_json_object_t obj)
+{
+    assert(obj.values.count == obj.keys.count);
+    printf("{");
+
+    for (size_t i = 0; i < obj.keys.count - 1; ++i)
+    {
+        printf("\"%s\": ", obj.keys.items[i]);
+        osj__print_value(obj.values.items[i]);
+        printf(", ");
+    }
+    printf("\"%s\": ", obj.keys.items[obj.keys.count - 1]);
+    osj__print_value(obj.values.items[obj.values.count - 1]);
+
+    printf("}");
+}
+
+OSJDEF void osj_print(os_json_object_t obj)
+{
+    osj__print_object(obj);
+    printf("\n");
 }
 
 OSJDEF void osj_free(os_json_object_t *obj)
