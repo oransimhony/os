@@ -11,6 +11,10 @@
 #define OS_SV_IMPLEMENTATION
 #include "os_sv.h"
 
+// Headers with other headers as dependencies
+#define OS_JSON_IMPLEMENTATION
+#include "os_json.h"
+
 #define CHECK_START(name) printf("------------Checking %s -----------\n", name)
 #define CHECK_END(name)                                                        \
     printf("------------Done checking %s-----------\n", name)
@@ -78,6 +82,26 @@ int check_da(const char *stage)
     CHECK_END(stage);
     return 1;
 }
+
+/* JSON tests */
+int check_json(const char *stage)
+{
+    CHECK_START(stage);
+
+    os_json_object_t *obj = osj_parse("{\"hello\": \"world\",\"number\": 1, \"isWorking\": true}");
+    assert(obj->keys.count == 3);
+    assert(obj->values.count == 3);
+
+    assert(0 == strcmp("hello", obj->keys.items[0]));
+    assert(0 == strcmp("world", obj->values.items[0]->value.str));
+
+    assert(0 == strcmp("number", obj->keys.items[1]));
+    assert(1.0L == obj->values.items[1]->value.number);
+
+    assert(0 == strcmp("isWorking", obj->keys.items[2]));
+    assert(true == obj->values.items[2]->value.boolean);
+
+    osj_free(obj);
 
     CHECK_END(stage);
     return 1;
@@ -181,6 +205,7 @@ int check_sv(const char *stage)
 int main(void)
 {
     TEST_STAGE(check_da, DA);
+    TEST_STAGE(check_json, JSON);
     TEST_STAGE(check_log, Log);
     TEST_STAGE(check_sb, SB);
     TEST_STAGE(check_sv, SV);
