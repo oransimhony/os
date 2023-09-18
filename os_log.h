@@ -32,7 +32,7 @@ OSLDEF void osl_logf(osl_log_type_t log_type, const char *format, ...);
 
 #endif
 
-#ifdef OS_LOG_IMPLEMENETATION
+#ifdef OS_LOG_IMPLEMENTATION
 
 OSLDEF void osl_log(osl_log_type_t log_type, const char *msg)
 {
