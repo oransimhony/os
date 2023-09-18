@@ -14,15 +14,15 @@
 
 typedef struct
 {
-    char *data;
+    const char *data;
     size_t length;
 } os_string_view_t;
 
 #define OSSV_FMT     "%.*s"
 #define OSSV_ARG(sv) (int) sv.length, sv.data
 
-OSSVDEF os_string_view_t ossv_new(char *data, size_t length);
-OSSVDEF os_string_view_t ossv_from_cstr(char *str);
+OSSVDEF os_string_view_t ossv_new(const char *data, size_t length);
+OSSVDEF os_string_view_t ossv_from_cstr(const char *str);
 
 OSSVDEF os_string_view_t ossv_trim_left(os_string_view_t sv);
 OSSVDEF os_string_view_t ossv_trim_right(os_string_view_t sv);
@@ -32,11 +32,11 @@ OSSVDEF os_string_view_t ossv_chop_by_delimeter(os_string_view_t *sv,
                                                 char delimiter);
 
 OSSVDEF bool ossv_equal(os_string_view_t sv, os_string_view_t other);
-OSSVDEF bool ossv_equal_cstr(os_string_view_t sv, char *str);
+OSSVDEF bool ossv_equal_cstr(os_string_view_t sv, const char *str);
 OSSVDEF bool ossv_starts_with(os_string_view_t sv, os_string_view_t other);
-OSSVDEF bool ossv_starts_with_cstr(os_string_view_t sv, char *str);
+OSSVDEF bool ossv_starts_with_cstr(os_string_view_t sv, const char *str);
 OSSVDEF bool ossv_ends_with(os_string_view_t sv, os_string_view_t other);
-OSSVDEF bool ossv_ends_with_cstr(os_string_view_t sv, char *str);
+OSSVDEF bool ossv_ends_with_cstr(os_string_view_t sv, const char *str);
 
 typedef bool (*ossv_predicate)(char character);
 OSSVDEF bool ossv_all(os_string_view_t sv, ossv_predicate predicate);
@@ -52,12 +52,12 @@ OSSVDEF bool ossv_is_digit(os_string_view_t sv);
 #include <ctype.h>
 #include <string.h>
 
-OSSVDEF os_string_view_t ossv_new(char *data, size_t length)
+OSSVDEF os_string_view_t ossv_new(const char *data, size_t length)
 {
     return (os_string_view_t) {.data = data, .length = length};
 }
 
-OSSVDEF os_string_view_t ossv_from_cstr(char *str)
+OSSVDEF os_string_view_t ossv_from_cstr(const char *str)
 {
     return (os_string_view_t) {.data = str, .length = strlen(str)};
 }
@@ -120,7 +120,7 @@ OSSVDEF bool ossv_equal(os_string_view_t sv, os_string_view_t other)
     return 0 == strncmp(sv.data, other.data, sv.length);
 }
 
-OSSVDEF bool ossv_equal_cstr(os_string_view_t sv, char *str)
+OSSVDEF bool ossv_equal_cstr(os_string_view_t sv, const char *str)
 {
     return ossv_equal(sv, ossv_from_cstr(str));
 }
@@ -143,7 +143,7 @@ OSSVDEF bool ossv_starts_with(os_string_view_t sv, os_string_view_t other)
     return true;
 }
 
-OSSVDEF bool ossv_starts_with_cstr(os_string_view_t sv, char *str)
+OSSVDEF bool ossv_starts_with_cstr(os_string_view_t sv, const char *str)
 {
     return ossv_starts_with(sv, ossv_from_cstr(str));
 }
@@ -164,7 +164,7 @@ OSSVDEF bool ossv_ends_with(os_string_view_t sv, os_string_view_t other)
     return true;
 }
 
-OSSVDEF bool ossv_ends_with_cstr(os_string_view_t sv, char *str)
+OSSVDEF bool ossv_ends_with_cstr(os_string_view_t sv, const char *str)
 {
     return ossv_ends_with(sv, ossv_from_cstr(str));
 }
