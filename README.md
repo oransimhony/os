@@ -12,6 +12,10 @@ And now you're good to go! ✨
 In `test.c` you can see some code that uses functions from the different header files. Use it to learn how to use this implementation. 🚀
 
 ## Headers
+### DA (Dynamic Array)
+A simple C dynamic array that grows based on your needs
+### JSON
+A simple C JSON parser
 ### Log
  A simple C Logging library
 ### SB (String Builder)
