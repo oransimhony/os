@@ -23,17 +23,17 @@ typedef enum
     osj_str,
     osj_boolean,
     osj_object,
+    osj_array,
     osj_value_type_count,
 } os_json_value_type_t;
 
 static const char *osj_value_type_to_cstr[osj_value_type_count] = {
-    [osj_number] = "number",
-    [osj_str] = "string",
-    [osj_boolean] = "bool",
-    [osj_object] = "object",
+    [osj_number] = "number", [osj_str] = "string",  [osj_boolean] = "bool",
+    [osj_object] = "object", [osj_array] = "array",
 };
 
 struct os_json_object_s;
+struct os_json_values_s;
 
 typedef union
 {
@@ -41,6 +41,7 @@ typedef union
     char *str;
     bool boolean;
     struct os_json_object_s *object;
+    struct os_json_values_s *array;
 } os_json_inner_value_t;
 
 typedef struct
@@ -56,7 +57,7 @@ typedef struct
     size_t capacity;
 } os_json_keys_t;
 
-typedef struct
+typedef struct os_json_values_s
 {
     os_json_value_t **items;
     size_t count;
@@ -114,6 +115,7 @@ static void osj__free(void *ptr);
 #include "os_sv.h"
 #endif
 
+static os_json_value_t *osj__parse_value(os_string_view_t *sv);
 static os_json_object_t *osj__parse_object(os_string_view_t *sv);
 
 static void *osj__realloc(void *ptr, size_t size)
@@ -197,6 +199,43 @@ static os_json_value_t *osj__parse_boolean(os_string_view_t *sv)
     return val;
 }
 
+static os_json_value_t *osj__parse_array(os_string_view_t *sv)
+{
+    os_json_value_t *val = (os_json_value_t *) osj__realloc(NULL, sizeof(*val));
+    assert(val != NULL);
+
+    assert(*sv->data == '[');
+    ++sv->data;
+    --sv->length;
+    *sv = ossv_trim_left(*sv);
+
+    os_json_values_t *array
+        = (os_json_values_t *) osj__realloc(NULL, sizeof(*array));
+    assert(array != NULL);
+    array->items = NULL;
+    array->count = 0;
+    array->capacity = 0;
+
+    while (*sv->data != ']')
+    {
+        os_da_append(array, osj__parse_value(sv));
+        *sv = ossv_trim_left(*sv);
+        if (*sv->data == ',')
+        {
+            ++sv->data;
+            --sv->length;
+        }
+        *sv = ossv_trim_left(*sv);
+    }
+
+    ++sv->data;
+    --sv->length;
+
+    val->type = osj_array;
+    val->value.array = array;
+
+    return val;
+}
 static os_json_value_t *osj__parse_value(os_string_view_t *sv)
 {
     switch (*sv->data)
@@ -214,6 +253,8 @@ static os_json_value_t *osj__parse_value(os_string_view_t *sv)
                 val->value.object = obj;
                 return val;
             }
+        case '[':
+            return osj__parse_array(sv);
         default:
             if (isdigit(*sv->data))
                 return osj__parse_number(sv);
@@ -332,6 +373,17 @@ OSJDEF void osj_free(os_json_object_t *obj)
         else if (obj->values.items[i]->type == osj_object)
         {
             osj_free(obj->values.items[i]->value.object);
+        }
+        else if (obj->values.items[i]->type == osj_array)
+        {
+            for (size_t j = 0; j < obj->values.items[i]->value.array->count;
+                 ++j)
+            {
+                osj__free(obj->values.items[i]->value.array->items[j]);
+            }
+
+            os_da_free(obj->values.items[i]->value.array);
+            osj__free(obj->values.items[i]->value.array);
         }
         osj__free(obj->values.items[i]);
     }

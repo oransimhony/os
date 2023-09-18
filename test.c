@@ -130,6 +130,18 @@ int check_json(const char *stage)
 
     osj_free(obj);
 
+    obj = osj_parse("{\"a\": [1, 2, 3]}");
+    assert(obj->keys.count == 1);
+    assert(obj->values.count == 1);
+
+    assert(0 == strcmp("a", obj->keys.items[0]));
+    assert(3 == obj->values.items[0]->value.array->count);
+    assert(1.0L == obj->values.items[0]->value.array->items[0]->value.number);
+    assert(2.0L == obj->values.items[0]->value.array->items[1]->value.number);
+    assert(3.0L == obj->values.items[0]->value.array->items[2]->value.number);
+
+    osj_free(obj);
+
     CHECK_END(stage);
     return 1;
 }
