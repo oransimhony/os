@@ -147,9 +147,10 @@ int check_json(const char *stage)
     osj_free(obj);
 
     obj = osj_parse(
-        "{\"a\": [{\"hello\": \"world\"}, {\"number\": 1}], \"b\": false}");
-    assert(obj->keys.count == 2);
-    assert(obj->values.count == 2);
+        "{\"a\": [{\"hello\": \"world\"}, {\"number\": 1}], \"b\": false, "
+        "\"c\": null}");
+    assert(obj->keys.count == 3);
+    assert(obj->values.count == 3);
 
     assert(0 == strcmp("a", obj->keys.items[0]));
     assert(2 == obj->values.items[0]->value.array->count);
@@ -190,6 +191,9 @@ int check_json(const char *stage)
 
     assert(0 == strcmp("b", obj->keys.items[1]));
     assert(false == obj->values.items[1]->value.boolean);
+
+    assert(0 == strcmp("c", obj->keys.items[2]));
+    assert(osj_null == obj->values.items[2]->type);
 
     osj_print(*obj);
 

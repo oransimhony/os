@@ -22,14 +22,15 @@ typedef enum
     osj_number,
     osj_str,
     osj_boolean,
+    osj_null,
     osj_object,
     osj_array,
     osj_value_type_count,
 } os_json_value_type_t;
 
 static const char *osj_value_type_to_cstr[osj_value_type_count] = {
-    [osj_number] = "number", [osj_str] = "string",  [osj_boolean] = "bool",
-    [osj_object] = "object", [osj_array] = "array",
+    [osj_number] = "number", [osj_str] = "string",    [osj_boolean] = "bool",
+    [osj_null] = "null",     [osj_object] = "object", [osj_array] = "array",
 };
 
 struct os_json_object_s;
@@ -170,34 +171,38 @@ static os_json_value_t *osj__parse_number(os_string_view_t *sv)
     return val;
 }
 
-static os_json_value_t *osj__parse_boolean(os_string_view_t *sv)
+static os_json_value_t *osj__parse_literal(os_string_view_t *sv)
 {
     os_json_value_t *val = (os_json_value_t *) osj__realloc(NULL, sizeof(*val));
     assert(val != NULL);
 
-    os_string_view_t boolean = ossv_new(sv->data, 0);
+    os_string_view_t literal = ossv_new(sv->data, 0);
     while (isalpha(*sv->data))
     {
         ++sv->data;
         --sv->length;
-        ++boolean.length;
+        ++literal.length;
     }
-    ossv_trim(boolean);
-    if (ossv_equal_cstr(boolean, "true"))
+    ossv_trim(literal);
+    if (ossv_equal_cstr(literal, "true"))
     {
+        val->type = osj_boolean;
         val->value.boolean = true;
     }
-    else if (ossv_equal_cstr(boolean, "false"))
+    else if (ossv_equal_cstr(literal, "false"))
     {
+        val->type = osj_boolean;
         val->value.boolean = false;
+    }
+    else if (ossv_equal_cstr(literal, "null"))
+    {
+        val->type = osj_null;
     }
     else
     {
-        osl_logf(OSL_ERROR, "Illegal value %s for boolean", boolean);
+        osl_logf(OSL_ERROR, "Illegal value %s for literal", literal);
         return NULL;
     }
-
-    val->type = osj_boolean;
 
     return val;
 }
@@ -262,7 +267,7 @@ static os_json_value_t *osj__parse_value(os_string_view_t *sv)
             if (isdigit(*sv->data))
                 return osj__parse_number(sv);
 
-            return osj__parse_boolean(sv);
+            return osj__parse_literal(sv);
 
             return NULL;
     }
@@ -365,6 +370,9 @@ static void osj__print_value(os_json_value_t *value)
             break;
         case osj_boolean:
             printf("%s", value->value.boolean ? "true" : "false");
+            break;
+        case osj_null:
+            printf("null");
             break;
         case osj_number:
             printf("%.10lf", value->value.number);
